@@ -36,3 +36,12 @@ Our target is to implement a software, which can send programs from the server t
     Note: The data is encrypted with the public key of the client.
 
 
+## Encryption
+
+- Data will be a `byte[]` and because of that we need to find a way to send that. There's multiple options for that: 
+  - Encode it as base64 (https://stackoverflow.com/a/52605186/7303868)
+  - Use BSON (https://stackoverflow.com/a/32185531/7303868)
+
+## Problems
+
+- MITM in the beginning: Attack is able to spoof the public_key, but he can't get the program.
