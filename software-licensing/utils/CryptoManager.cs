@@ -5,17 +5,40 @@ namespace crypto
 {
     public class CryptoManager : ICryptoManager
     {
-        //public (RSAParameters publicKey, RSAParameters publicPrivateKey) GenerateKeyPair()
-        //{
-        //    // Create object implementing RSA. Note that this version of the
-        //    // constructor generates a random 2048-bit key pair.
-        //    using (var rsa = new RSACng())
-        //    {
-        //        return (publicKey: rsa.ExportParameters(false),
-        //            publicPrivateKey: rsa.ExportParameters(true));
-        //    }
-        //}
-        //https://github.com/rstropek/SecureCodingDotNet/blob/master/02-Asymmetric-Encryption/Program.cs
+        public (RSAParameters publicKey, RSAParameters publicPrivateKey) GenerateKeyPair()
+        {
+            // Create object implementing RSA. Note that this version of the
+            // constructor generates a random 2048-bit key pair.
+            using (var rsa = new RSACng())
+            {
+                return (publicKey: rsa.ExportParameters(false),
+                    publicPrivateKey: rsa.ExportParameters(true));
+            }
+        }
+
+        public byte[] Encrypt(RSAParameters publicKey, byte[] data)
+        {
+            using (var rsa = new RSACng())
+            {
+                // Import given public key to RSA
+                rsa.ImportParameters(publicKey);
+
+                // Return encrypted data
+                return rsa.Encrypt(data, RSAEncryptionPadding.OaepSHA512);
+            }
+        }
+
+        public byte[] Decrypt(RSAParameters publicKey, byte[] encryptedData)
+        {
+            using (var rsa = new RSACng())
+            {
+                // Import given public key to RSA
+                rsa.ImportParameters(publicKey);
+
+                // Return decrypted data
+                return rsa.Decrypt(encryptedData, RSAEncryptionPadding.OaepSHA512);
+            }
+        }
 
         public string GenerateHash(string data)
         {
@@ -36,9 +59,5 @@ namespace crypto
             }
             return result.ToString();
         }
-
-        // Generate public and private key
-        // Encrypt data (asymmetric)
-        // Decrypt data (asymmetric)
     }
 }
