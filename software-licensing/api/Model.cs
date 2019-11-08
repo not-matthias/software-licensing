@@ -6,14 +6,9 @@
         public string Checksum { get; set; }
     }
 
-    public class RequestData
+    public class ProgramRequestData
     {
         public string PublicKey { get; set; }
         public string LicenseKey { get; set; }
-    }
-
-    public class ResponseData
-    {
-        public byte[] ProgramData { get; set; }
     }
 }
