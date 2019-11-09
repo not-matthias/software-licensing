@@ -52,6 +52,15 @@ namespace crypto
             }
         }
 
+        public string GenerateHash(byte[] data)
+        {
+            using (var sha512 = new SHA512Managed())
+            {
+                byte[] hash = sha512.ComputeHash(data);
+                return GetStringFromHash(hash);
+            }
+        }
+
         private string GetStringFromHash(byte[] hash)
         {
             StringBuilder result = new StringBuilder();
@@ -61,5 +70,6 @@ namespace crypto
             }
             return result.ToString();
         }
+
     }
 }

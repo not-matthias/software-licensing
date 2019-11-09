@@ -4,9 +4,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text.Json;
+using utils;
 
 namespace api.Controllers
 {
@@ -48,29 +48,19 @@ namespace api.Controllers
         [Route("public_key")]
         public IActionResult GetPublicKey()
         {
-            var options = new JsonSerializerOptions
-            {
-                IgnoreNullValues = true
-            };
-            var publicKeyString = JsonSerializer.Serialize(_keys.publicKey, options);
+            var publicKeyString = JsonSerializer.Serialize(_keys.publicKey, new JsonSerializerOptions { IgnoreNullValues = true });
 
-            var packet = new Packet<string>
-            {
-                Data = publicKeyString,
-                Checksum = _cryptoManager.GenerateHash(publicKeyString)
-            };
-
-            return Ok(packet);
+            return Ok(new DecryptedPacket<string>(_cryptoManager, publicKeyString));
         }
 
         [HttpPost]
         [Route("validate")]
-        public IActionResult ValidateLicense([FromBody] Packet<byte[]> requestPacket)
+        public IActionResult ValidateLicense([FromBody] EncryptedPacket<ProgramRequestData> requestPacket)
         {
             //
             // Compare the checksum
             //
-            if (_cryptoManager.GenerateHash(JsonSerializer.Serialize(requestPacket.Data)) != requestPacket.Checksum)
+            if (requestPacket.IsValid())
             {
                 return BadRequest();
             }
@@ -78,14 +68,11 @@ namespace api.Controllers
             //
             // Decrypt the packet
             //
-            var data = FromByteArray<ProgramRequestData>(_cryptoManager.Decrypt(_keys.privateKey.RSAParameters, requestPacket.Data));
-
-            if (string.IsNullOrEmpty(data.LicenseKey))
-            {
-                return BadRequest();
-            }
-
-            if (!_licenses.ContainsKey(data.LicenseKey))
+            var data = requestPacket.Decrypt(_keys.privateKey.RSAParameters);
+            //
+            // Validate the license
+            //
+            if (string.IsNullOrEmpty(data.LicenseKey) || !_licenses.ContainsKey(data.LicenseKey))
             {
                 return BadRequest();
             }
@@ -103,31 +90,11 @@ namespace api.Controllers
                 ms.Write(buffer, 0, read);
 
             //
-            // Encrypt the program
-            //
-            var encryptedProgram = _cryptoManager.Encrypt(data.PublicKey.RSAParameters, ms.ToArray());
-
-            //
             // Create the response packet
             //
-            var packet = new Packet<byte[]>
-            {
-                Data = encryptedProgram,
-                Checksum = _cryptoManager.GenerateHash(JsonSerializer.Serialize(encryptedProgram))
-            };
+            var packet = new DecryptedPacket<byte[]>(_cryptoManager, ms.ToArray());
 
-            return Ok(packet);
-        }
-
-        public static T FromByteArray<T>(byte[] data)
-        {
-            if (data == null)
-                return default;
-
-            BinaryFormatter bf = new BinaryFormatter();
-            using MemoryStream ms = new MemoryStream(data);
-            object obj = bf.Deserialize(ms);
-            return (T)obj;
+            return Ok(packet.Encrypt(data.PublicKey.RSAParameters));
         }
     }
 }

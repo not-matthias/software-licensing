@@ -11,5 +11,7 @@ namespace crypto
         public byte[] Decrypt(RSAParameters key, byte[] encryptedData);
 
         public string GenerateHash(string data);
+
+        public string GenerateHash(byte[] data);
     }
 }
