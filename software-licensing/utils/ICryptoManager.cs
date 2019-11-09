@@ -4,11 +4,11 @@ namespace crypto
 {
     public interface ICryptoManager
     {
-        public (RSAParameters publicKey, RSAParameters publicPrivateKey) GenerateKeyPair();
+        public (RSAParameters publicKey, RSAParameters privateKey) GenerateKeyPair();
 
-        public byte[] Encrypt(RSAParameters publicKey, byte[] data);
+        public byte[] Encrypt(RSAParameters key, byte[] data);
 
-        public byte[] Decrypt(RSAParameters publicKey, byte[] encryptedData);
+        public byte[] Decrypt(RSAParameters key, byte[] encryptedData);
 
         public string GenerateHash(string data);
     }

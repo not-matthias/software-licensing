@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text.Json;
 
@@ -62,31 +63,37 @@ namespace api.Controllers
             return Ok(packet);
         }
 
-        // [FromBody] Packet<ProgramRequestData> requestPacket
-        [HttpGet]
+        [HttpPost]
         [Route("validate")]
-        public IActionResult ValidateLicense([FromQuery] string license)
+        public IActionResult ValidateLicense([FromBody] Packet<byte[]> requestPacket)
         {
-            if (string.IsNullOrEmpty(license))
-            {
-                return BadRequest();
-            }
-
-            if (!_licenses.ContainsKey(license))
+            //
+            // Compare the checksum
+            //
+            if (_cryptoManager.GenerateHash(JsonSerializer.Serialize(requestPacket.Data)) != requestPacket.Checksum)
             {
                 return BadRequest();
             }
 
             //
-            // Get the client public key
+            // Decrypt the packet
             //
+            var data = FromByteArray<ProgramRequestData>(_cryptoManager.Decrypt(_keys.privateKey.RSAParameters, requestPacket.Data));
 
+            if (string.IsNullOrEmpty(data.LicenseKey))
+            {
+                return BadRequest();
+            }
 
+            if (!_licenses.ContainsKey(data.LicenseKey))
+            {
+                return BadRequest();
+            }
 
             //
             // Read the file from disk
             //
-            using FileStream fs = System.IO.File.Open(_licenses[license], FileMode.Open);
+            using FileStream fs = System.IO.File.Open(_licenses[data.LicenseKey], FileMode.Open);
             using MemoryStream ms = new MemoryStream();
 
             byte[] buffer = new byte[1024];
@@ -98,7 +105,7 @@ namespace api.Controllers
             //
             // Encrypt the program
             //
-            var encryptedProgram = _cryptoManager.Encrypt(_keys.publicKey.RSAParameters, ms.ToArray());
+            var encryptedProgram = _cryptoManager.Encrypt(data.PublicKey.RSAParameters, ms.ToArray());
 
             //
             // Create the response packet
@@ -110,6 +117,17 @@ namespace api.Controllers
             };
 
             return Ok(packet);
+        }
+
+        public static T FromByteArray<T>(byte[] data)
+        {
+            if (data == null)
+                return default;
+
+            BinaryFormatter bf = new BinaryFormatter();
+            using MemoryStream ms = new MemoryStream(data);
+            object obj = bf.Deserialize(ms);
+            return (T)obj;
         }
     }
 }

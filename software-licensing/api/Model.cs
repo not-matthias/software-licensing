@@ -8,7 +8,7 @@
 
     public class ProgramRequestData
     {
-        public string PublicKey { get; set; }
+        public RSAParametersSerializable PublicKey { get; set; }
         public string LicenseKey { get; set; }
     }
 }

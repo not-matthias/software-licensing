@@ -5,35 +5,37 @@ namespace crypto
 {
     public class CryptoManager : ICryptoManager
     {
-        public (RSAParameters publicKey, RSAParameters publicPrivateKey) GenerateKeyPair()
+        public (RSAParameters publicKey, RSAParameters privateKey) GenerateKeyPair()
         {
             // Create object implementing RSA. Note that this version of the
             // constructor generates a random 2048-bit key pair.
             using (var rsa = new RSACng())
             {
-                return (publicKey: rsa.ExportParameters(false),
-                    publicPrivateKey: rsa.ExportParameters(true));
+                return (
+                        publicKey: rsa.ExportParameters(false),
+                        privateKey: rsa.ExportParameters(true)
+                    );
             }
         }
 
-        public byte[] Encrypt(RSAParameters publicKey, byte[] data)
+        public byte[] Encrypt(RSAParameters key, byte[] data)
         {
             using (var rsa = new RSACng())
             {
                 // Import given public key to RSA
-                rsa.ImportParameters(publicKey);
+                rsa.ImportParameters(key);
 
                 // Return encrypted data
                 return rsa.Encrypt(data, RSAEncryptionPadding.OaepSHA512);
             }
         }
 
-        public byte[] Decrypt(RSAParameters publicKey, byte[] encryptedData)
+        public byte[] Decrypt(RSAParameters key, byte[] encryptedData)
         {
             using (var rsa = new RSACng())
             {
                 // Import given public key to RSA
-                rsa.ImportParameters(publicKey);
+                rsa.ImportParameters(key);
 
                 // Return decrypted data
                 return rsa.Decrypt(encryptedData, RSAEncryptionPadding.OaepSHA512);
