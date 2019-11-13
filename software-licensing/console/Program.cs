@@ -8,32 +8,34 @@ namespace console
 {
     class Program
     {
-        public static HttpClient client = new HttpClient() { BaseAddress = new Uri("http://localhost:53696") };
+        public static HttpClient client = new HttpClient() { BaseAddress = new Uri("http://localhost:5000") };
+
         static async Task Main(string[] args)
         {
-            _ = await GetPublicKey();
+            await GetPublicKey();
         }
 
-        public static async Task<string> GetPublicKey()
+        public static T Deserialize<T>(string jsonContent)
         {
-            // DecryptedPacket<string>try 
+            return JsonSerializer.Deserialize<T>(jsonContent, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+        }
+
+        public static async Task GetPublicKey()
+        {
             try
             {
                 var response = await client.GetStringAsync("/license/public_key");
+                var packet = Deserialize<Packet<RSAParametersSerializable>>(response);
 
-                var packet = JsonSerializer.Deserialize<DecryptedPacket<RSAParametersSerializable>>(response);
-
-
-                Console.WriteLine("Testasdf");
+                Console.WriteLine(packet.IsValid());
             }
             catch (Exception exception)
             {
                 Console.WriteLine(exception.ToString());
             }
-
-            Console.WriteLine("Hey!");
-
-            return "You suck";
         }
     }
 }

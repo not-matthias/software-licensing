@@ -47,12 +47,12 @@ namespace api.Controllers
         [Route("public_key")]
         public IActionResult GetPublicKey()
         {
-            return Ok(new DecryptedPacket<RSAParametersSerializable>(_cryptoManager, _keys.publicKey));
+            return Ok(new Packet<RSAParametersSerializable>(_keys.publicKey));
         }
 
         [HttpPost]
         [Route("validate")]
-        public IActionResult ValidateLicense([FromBody] EncryptedPacket<ProgramRequestData> requestPacket)
+        public IActionResult ValidateLicense([FromBody] Packet<ProgramRequestData> requestPacket)
         {
             //
             // Compare the checksum
@@ -66,6 +66,7 @@ namespace api.Controllers
             // Decrypt the packet
             //
             var data = requestPacket.Decrypt(_keys.privateKey.RSAParameters);
+
             //
             // Validate the license
             //
@@ -89,9 +90,9 @@ namespace api.Controllers
             //
             // Create the response packet
             //
-            var packet = new DecryptedPacket<byte[]>(_cryptoManager, ms.ToArray());
+            var packet = new Packet<byte[]>(ms.ToArray());
 
-            return Ok(packet.Encrypt(_cryptoManager, data.PublicKey.RSAParameters));
+            return Ok(packet.Encrypt(data.PublicKey.RSAParameters));
         }
     }
 }
