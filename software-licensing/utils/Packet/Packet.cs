@@ -1,11 +1,18 @@
 ﻿using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.Json;
 
 namespace utils
 {
-    public abstract class Packet
+    public abstract class Packet<DT>
     {
+        public DT Data { get; set; }
         public string Checksum { get; set; }
+
+        public bool IsValid()
+        {
+            return JsonSerializer.Serialize(Data) == Checksum;
+        }
 
         public static byte[] ToByteArray<T>(T obj)
         {

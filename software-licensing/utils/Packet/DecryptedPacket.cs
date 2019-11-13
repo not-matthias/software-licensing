@@ -3,31 +3,35 @@ using System.Security.Cryptography;
 
 namespace utils
 {
-    public class DecryptedPacket<T> : Packet
+    public class DecryptedPacket<T> : Packet<T>
     {
-        private ICryptoManager _cryptoManager;
+        private readonly ICryptoManager _cryptoManager;
 
-        public T Data { get; set; }
+        public DecryptedPacket()
+        {
+        }
 
         public DecryptedPacket(ICryptoManager cryptoManager, T data)
         {
             _cryptoManager = cryptoManager;
 
             Data = data;
-            Checksum = cryptoManager.GenerateHash(ToByteArray(Data));
+            Checksum = GenerateChecksum();
         }
 
-        public EncryptedPacket<T> Encrypt(RSAParameters key)
+        public string GenerateChecksum()
         {
-            var encryptedData = _cryptoManager.Decrypt(key, ToByteArray(Data));
+            if (_cryptoManager == null) return null;
 
-            EncryptedPacket<T> packet = new EncryptedPacket<T>(_cryptoManager)
-            {
-                Data = encryptedData,
-                Checksum = _cryptoManager.GenerateHash(encryptedData)
-            };
+            return _cryptoManager.GenerateHash(ToByteArray(Data));
+        }
 
-            return packet;
+        public EncryptedPacket<T> Encrypt(ICryptoManager cryptoManager, RSAParameters key)
+        {
+            if (_cryptoManager == null) return null;
+
+            var encryptedData = cryptoManager.Encrypt(key, ToByteArray(Data));
+            return new EncryptedPacket<T>(cryptoManager, encryptedData);
         }
     }
 }
