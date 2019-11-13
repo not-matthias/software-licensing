@@ -1,6 +1,9 @@
-﻿using System;
+﻿using api;
+using crypto;
+using System;
 using System.Net.Http;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using utils;
@@ -9,12 +12,13 @@ namespace console
 {
     class Program
     {
-        public static HttpClient client = new HttpClient() { BaseAddress = new Uri("http://localhost:5000") };
+        public static HttpClient client = new HttpClient() { BaseAddress = new Uri("http://localhost:53696") };
+        public static CryptoManager cryptoManager = new CryptoManager();
 
         static async Task Main(string[] args)
         {
-            var publicKey = await GetPublicKey();
-            var program = await GetProgram(publicKey, "AAAA-BBBB-CCCC-DDDD");
+         //   var publicKey = await GetPublicKey();
+            var program = await GetProgram(null, "AAAA-BBBB-CCCC-DDDD");
 
             LaunchProgram(Assembly.Load(program));
         }
@@ -43,6 +47,17 @@ namespace console
 
         public static async Task<byte[]> GetProgram(RSAParametersSerializable publicKey, string licenseKey)
         {
+            var keys = cryptoManager.GenerateKeyPair();
+            var packet = new Packet<ProgramRequestData>(new ProgramRequestData
+            {
+                LicenseKey = licenseKey,
+                PublicKey= new RSAParametersSerializable(keys.publicKey)
+            });
+
+            var asdf = packet.Encrypt(keys.publicKey);
+            Console.WriteLine("asdf");
+            //var content = new StringContent(JsonSerializer.Serialize(), Encoding.UTF8, "application/json");
+            //var response = await client.PostAsync("/program", content);
             // Get the program from the server
             return new byte[100];
         }

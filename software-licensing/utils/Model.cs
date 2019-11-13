@@ -1,5 +1,8 @@
-﻿namespace api
+﻿using System;
+
+namespace api
 {
+    [Serializable]
     public class ProgramRequestData
     {
         public RSAParametersSerializable PublicKey { get; set; }
