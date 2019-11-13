@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
-using System.Text.Json;
 using utils;
 
 namespace api.Controllers
@@ -48,9 +47,7 @@ namespace api.Controllers
         [Route("public_key")]
         public IActionResult GetPublicKey()
         {
-            var publicKeyString = JsonSerializer.Serialize(_keys.publicKey, new JsonSerializerOptions { IgnoreNullValues = true });
-
-            return Ok(new DecryptedPacket<string>(_cryptoManager, publicKeyString));
+            return Ok(new DecryptedPacket<RSAParametersSerializable>(_cryptoManager, _keys.publicKey));
         }
 
         [HttpPost]
@@ -94,7 +91,7 @@ namespace api.Controllers
             //
             var packet = new DecryptedPacket<byte[]>(_cryptoManager, ms.ToArray());
 
-            return Ok(packet.Encrypt(data.PublicKey.RSAParameters));
+            return Ok(packet.Encrypt(_cryptoManager, data.PublicKey.RSAParameters));
         }
     }
 }
