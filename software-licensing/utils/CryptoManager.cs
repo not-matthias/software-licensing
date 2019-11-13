@@ -1,5 +1,7 @@
-﻿using System.Security.Cryptography;
+﻿using System.IO;
+using System.Security.Cryptography;
 using System.Text;
+using utils;
 
 namespace crypto
 {
@@ -18,27 +20,77 @@ namespace crypto
             }
         }
 
-        public byte[] Encrypt(RSAParameters key, byte[] data)
+        public CryptoData Encrypt(RSAParameters rsaKey, byte[] data)
         {
+            byte[] encryptedData;
+            byte[] key;
+            byte[] iv;
+
+            //
+            // Use AES to encrypt the data
+            //
+            using (var aes = new AesCng())
+            {
+                key = aes.Key;
+                iv = aes.IV;
+
+                using (var encryptor = aes.CreateEncryptor(aes.Key, aes.IV))
+                {
+                    encryptedData = PerformCryptography(data, encryptor);
+                }
+            }
+
+            //
+            // Use RSA to encrypt AES key/IV
+            //
             using (var rsa = new RSACng())
             {
                 // Import given public key to RSA
-                rsa.ImportParameters(key);
+                rsa.ImportParameters(rsaKey);
 
-                // Return encrypted data
-                return rsa.Encrypt(data, RSAEncryptionPadding.OaepSHA512);
+                return new CryptoData
+                {
+                    EncryptedKey = rsa.Encrypt(key, RSAEncryptionPadding.OaepSHA512),
+                    EncryptedIV = rsa.Encrypt(iv, RSAEncryptionPadding.OaepSHA512),
+                    EncryptedData = encryptedData
+                };
             }
         }
 
-        public byte[] Decrypt(RSAParameters key, byte[] encryptedData)
+        public byte[] Decrypt(RSAParameters rsaKey, CryptoData cryptoData)
         {
             using (var rsa = new RSACng())
             {
-                // Import given public key to RSA
-                rsa.ImportParameters(key);
+                // Import key pair
+                rsa.ImportParameters(rsaKey);
 
-                // Return decrypted data
-                return rsa.Decrypt(encryptedData, RSAEncryptionPadding.OaepSHA512);
+                // Decrypt key/IV using asymmetric RSA algorithm
+                var key = rsa.Decrypt(cryptoData.EncryptedKey, RSAEncryptionPadding.OaepSHA512);
+                var iv = rsa.Decrypt(cryptoData.EncryptedIV, RSAEncryptionPadding.OaepSHA512);
+
+                // Use symmetric AES algorithm to decrypt secret message
+                using (var aes = new AesCng())
+                {
+                    aes.Key = key;
+                    aes.IV = iv;
+
+                    using (var decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
+                    {
+                        return PerformCryptography(cryptoData.EncryptedData, decryptor);
+                    }
+                }
+            }
+        }
+
+        private byte[] PerformCryptography(byte[] data, ICryptoTransform cryptoTransform)
+        {
+            using (var ms = new MemoryStream())
+            using (var cryptoStream = new CryptoStream(ms, cryptoTransform, CryptoStreamMode.Write))
+            {
+                cryptoStream.Write(data, 0, data.Length);
+                cryptoStream.FlushFinalBlock();
+
+                return ms.ToArray();
             }
         }
 

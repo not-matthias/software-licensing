@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography;
+using utils;
 
 namespace crypto
 {
@@ -6,9 +7,9 @@ namespace crypto
     {
         public (RSAParameters publicKey, RSAParameters privateKey) GenerateKeyPair();
 
-        public byte[] Encrypt(RSAParameters key, byte[] data);
+        public CryptoData Encrypt(RSAParameters rsaKey, byte[] data);
 
-        public byte[] Decrypt(RSAParameters key, byte[] encryptedData);
+        public byte[] Decrypt(RSAParameters rsaKey, CryptoData cryptoData);
 
         public string GenerateHash(string data);
 

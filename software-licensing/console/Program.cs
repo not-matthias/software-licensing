@@ -3,7 +3,6 @@ using crypto;
 using System;
 using System.Net.Http;
 using System.Reflection;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using utils;
@@ -17,7 +16,7 @@ namespace console
 
         static async Task Main(string[] args)
         {
-         //   var publicKey = await GetPublicKey();
+            //   var publicKey = await GetPublicKey();
             var program = await GetProgram(null, "AAAA-BBBB-CCCC-DDDD");
 
             LaunchProgram(Assembly.Load(program));
@@ -51,11 +50,14 @@ namespace console
             var packet = new Packet<ProgramRequestData>(new ProgramRequestData
             {
                 LicenseKey = licenseKey,
-                PublicKey= new RSAParametersSerializable(keys.publicKey)
+                PublicKey = new RSAParametersSerializable(keys.publicKey)
             });
 
-            var asdf = packet.Encrypt(keys.publicKey);
-            Console.WriteLine("asdf");
+            var encryptedPacket = await packet.EncryptAsync(keys.publicKey);
+            var decryptedPacket = await encryptedPacket.DecryptAsync<ProgramRequestData>(keys.privateKey);
+
+            Console.WriteLine("Finished the encryption.");
+
             //var content = new StringContent(JsonSerializer.Serialize(), Encoding.UTF8, "application/json");
             //var response = await client.PostAsync("/program", content);
             // Get the program from the server
