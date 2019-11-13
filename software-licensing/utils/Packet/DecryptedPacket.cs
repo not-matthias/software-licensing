@@ -1,4 +1,5 @@
 ﻿using crypto;
+using System.Runtime.Serialization;
 using System.Security.Cryptography;
 
 namespace utils
@@ -7,8 +8,16 @@ namespace utils
     {
         private readonly ICryptoManager _cryptoManager;
 
-        public DecryptedPacket()
+        public DecryptedPacket(SerializationInfo information, StreamingContext context)
         {
+            Data = (T)information.GetValue("Data", typeof(T));
+            Checksum = information.GetString("Checksum");
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("Data", Data);
+            info.AddValue("Checksum", Checksum);
         }
 
         public DecryptedPacket(ICryptoManager cryptoManager, T data)
