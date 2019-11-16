@@ -17,8 +17,8 @@ namespace console
 
         static async Task Main(string[] args)
         {
-         //   var publicKey = await GetPublicKey();
-            var program = await GetProgram(null, "AAAA-BBBB-CCCC-DDDD");
+            var help = (await GetPublicKey());
+            var program = await GetProgram(help, "AAAA-BBBB-CCCC-DDDD");
 
             LaunchProgram(Assembly.Load(program));
         }
@@ -41,6 +41,7 @@ namespace console
                 Console.WriteLine("Packet is not valid.");
                 throw new InvalidOperationException();
             }
+            Console.WriteLine(packet.Data.ToString());
 
             return packet.Data;
         }
@@ -51,14 +52,17 @@ namespace console
             var packet = new Packet<ProgramRequestData>(new ProgramRequestData
             {
                 LicenseKey = licenseKey,
-                PublicKey= new RSAParametersSerializable(keys.publicKey)
+                PublicKey= new RSAParametersSerializable(publicKey.RSAParameters)
             });
 
-            var asdf = packet.Encrypt(keys.publicKey);
-            Console.WriteLine("asdf");
-            //var content = new StringContent(JsonSerializer.Serialize(), Encoding.UTF8, "application/json");
-            //var response = await client.PostAsync("/program", content);
+            //var asdf = packet.Encrypt(keys.publicKey);
+            //Console.WriteLine("asdf");
+            var content = new StringContent(JsonSerializer.Serialize(packet.Encrypt(keys.publicKey)), Encoding.UTF8, "application/json");
+
             // Get the program from the server
+            var response = await client.PostAsync("/program", content);
+            Console.WriteLine(response.Content.ToString());
+            //var cryptedprogram = new StringContent(JsonSerializer.Deserialize<EncrypetedPacket<CryproData>>(response.Content));
             return new byte[100];
         }
 
