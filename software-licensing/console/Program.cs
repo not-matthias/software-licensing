@@ -3,7 +3,6 @@ using crypto;
 using System;
 using System.Net.Http;
 using System.Reflection;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using utils;
@@ -52,7 +51,7 @@ namespace console
             var packet = new Packet<ProgramRequestData>(new ProgramRequestData
             {
                 LicenseKey = licenseKey,
-                PublicKey= new RSAParametersSerializable(publicKey.RSAParameters)
+                PublicKey= new RSAParametersSerializable(keys.publicKey)
             });
 
             //var asdf = packet.Encrypt(keys.publicKey);

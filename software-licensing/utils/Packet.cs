@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace utils
 {
@@ -10,10 +11,9 @@ namespace utils
     public class Packet<T>
     {
         [NonSerialized]
-        private readonly CryptoManager _cryptoManager = new CryptoManager();
+        protected readonly CryptoManager _cryptoManager = new CryptoManager();
 
         public T Data { get; set; }
-
         public string Checksum { get; set; }
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace utils
         /// <summary>
         /// Creates a new packet with the data and calculates the checksum.
         /// </summary>
-        /// <param name="data">The data of the packet (encryped or decrypted)</param>
+        /// <param name="data">The data of the packet</param>
         public Packet(T data)
         {
             Data = data;
@@ -38,20 +38,15 @@ namespace utils
         /// </summary>
         /// <param name="key">The asymmetric key</param>
         /// <returns>The encrypted packet</returns>
-        public Packet<byte[]> Encrypt(RSAParameters key)
+        public async Task<EncryptedPacket<CryptoData>> EncryptAsync(RSAParameters key)
         {
-            var encryptedData = _cryptoManager.Encrypt(key, ToByteArray(Data));
-            return new Packet<byte[]>(encryptedData);
-        }
+            if (Data.GetType() == typeof(CryptoData))
+            {
+                throw new InvalidOperationException("Data is already encrypted");
+            }
 
-        /// <summary>
-        /// Decrypts the data of the packet.
-        /// </summary>
-        /// <param name="key">The asymmetric key</param>
-        /// <returns>The decrypted data of the packet</returns>
-        public T Decrypt(RSAParameters key)
-        {
-            return FromByteArray<T>(_cryptoManager.Decrypt(key, ToByteArray(Data)));
+            var encryptedData = _cryptoManager.Encrypt(key, ToByteArray(Data));
+            return new EncryptedPacket<CryptoData>(encryptedData);
         }
 
         /// <summary>
