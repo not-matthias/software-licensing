@@ -10,5 +10,11 @@
     <ProjectReference Include="..\utils\utils.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="sample_software.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 
 </Project>

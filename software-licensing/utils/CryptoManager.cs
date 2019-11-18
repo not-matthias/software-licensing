@@ -106,6 +106,11 @@ namespace crypto
 
         public string GenerateHash(byte[] data)
         {
+            if (data is null)
+            {
+                return default;
+            }
+
             using (var sha512 = new SHA512Managed())
             {
                 byte[] hash = sha512.ComputeHash(data);

@@ -12,13 +12,13 @@ namespace console
 {
     class Program
     {
-        public static HttpClient client = new HttpClient() { BaseAddress = new Uri("http://localhost:53696") };
+        public static HttpClient client = new HttpClient() { BaseAddress = new Uri("https://localhost:5001") };
         public static CryptoManager cryptoManager = new CryptoManager();
 
         static async Task Main(string[] args)
         {
-            var help = (await GetPublicKey());
-            var program = await GetProgram(help, "AAAA-BBBB-CCCC-DDDD");
+            var publicKey = await GetPublicKey();
+            var program = await GetProgram(publicKey, "AAAA-BBBB-CCCC-DDDD");
 
             LaunchProgram(Assembly.Load(program));
         }
@@ -49,21 +49,30 @@ namespace console
         public static async Task<byte[]> GetProgram(RSAParametersSerializable publicKey, string licenseKey)
         {
             var keys = cryptoManager.GenerateKeyPair();
+
+            //
+            // Create the request packet
+            //
             var packet = new Packet<ProgramRequestData>(new ProgramRequestData
             {
                 LicenseKey = licenseKey,
-                PublicKey= new RSAParametersSerializable(keys.publicKey)
+                PublicKey = new RSAParametersSerializable(keys.publicKey)
             });
+            var encryptedPacket = await packet.EncryptAsync(publicKey.RSAParameters);
 
-            //var asdf = packet.Encrypt(keys.publicKey);
-            //Console.WriteLine("asdf");
-            var content = new StringContent(JsonSerializer.Serialize(packet.EncryptAsync(keys.publicKey)), Encoding.UTF8, "application/json");
-
-            // Get the program from the server
+            //
+            // Request the program from the server
+            //
+            var content = new StringContent(JsonSerializer.Serialize(encryptedPacket), Encoding.UTF8, "application/json");
             var response = await client.PostAsync("/license/validate", content);
-            Console.WriteLine(response.Content.ToString());
-            //var cryptedprogram = Deserialize<EncryptedPacket<byte[]>>(response);
-            return new byte[100];
+
+            //
+            // Deserialize and decrypt the packet
+            //
+            var encrypted = Deserialize<EncryptedPacket<CryptoData>>(await response.Content.ReadAsStringAsync());
+            var decypted = await encrypted.DecryptAsync<byte[]>(keys.privateKey);
+
+            return decypted;
         }
 
         public static async void LaunchProgram(Assembly assembly)

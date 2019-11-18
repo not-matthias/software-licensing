@@ -58,7 +58,7 @@ namespace api.Controllers
             //
             // Compare the checksum
             //
-            if (requestPacket.IsValid())
+            if (!requestPacket.IsValid())
             {
                 return BadRequest();
             }
