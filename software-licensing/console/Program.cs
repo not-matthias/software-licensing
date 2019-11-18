@@ -3,6 +3,7 @@ using crypto;
 using System;
 using System.Net.Http;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using utils;
@@ -56,12 +57,12 @@ namespace console
 
             //var asdf = packet.Encrypt(keys.publicKey);
             //Console.WriteLine("asdf");
-            var content = new StringContent(JsonSerializer.Serialize(packet.Encrypt(keys.publicKey)), Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonSerializer.Serialize(packet.EncryptAsync(keys.publicKey)), Encoding.UTF8, "application/json");
 
             // Get the program from the server
-            var response = await client.PostAsync("/program", content);
+            var response = await client.PostAsync("/license/validate", content);
             Console.WriteLine(response.Content.ToString());
-            //var cryptedprogram = new StringContent(JsonSerializer.Deserialize<EncrypetedPacket<CryproData>>(response.Content));
+            //var cryptedprogram = Deserialize<EncryptedPacket<byte[]>>(response);
             return new byte[100];
         }
 
