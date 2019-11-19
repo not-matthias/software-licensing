@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace utils
 {
-    class ProgramLoader : IProgramLoader
+    public class ProgramLoader : IProgramLoader
     {
         public void CallFunction(Assembly assembly, string className, string methodName)
         {

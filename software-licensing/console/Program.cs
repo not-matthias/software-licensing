@@ -12,7 +12,7 @@ namespace console
 {
     class Program
     {
-        public static HttpClient client = new HttpClient() { BaseAddress = new Uri("https://localhost:5001") };
+        public static HttpClient client = new HttpClient() { BaseAddress = new Uri("http://localhost:53696") };
         public static CryptoManager cryptoManager = new CryptoManager();
 
         static async Task Main(string[] args)
@@ -77,7 +77,9 @@ namespace console
 
         public static async void LaunchProgram(Assembly assembly)
         {
-            // TODO: Launch it with the IProgramLoader.cs
+            ProgramLoader programLoader = new ProgramLoader();
+            programLoader.CallFunction(assembly, "sample_software.Initizializer", "Init");
+            
         }
     }
 }
