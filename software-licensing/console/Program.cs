@@ -12,8 +12,9 @@ namespace console
 {
     class Program
     {
-        public static HttpClient client = new HttpClient() { BaseAddress = new Uri("http://localhost:53696") };
+        public static HttpClient client = new HttpClient() { BaseAddress = new Uri("http://localhost:5000") };
         public static CryptoManager cryptoManager = new CryptoManager();
+        public static ProgramLoader programLoader = new ProgramLoader();
 
         static async Task Main(string[] args)
         {
@@ -41,7 +42,6 @@ namespace console
                 Console.WriteLine("Packet is not valid.");
                 throw new InvalidOperationException();
             }
-            Console.WriteLine(packet.Data.ToString());
 
             return packet.Data;
         }
@@ -75,11 +75,9 @@ namespace console
             return decypted;
         }
 
-        public static async void LaunchProgram(Assembly assembly)
+        public static void LaunchProgram(Assembly assembly)
         {
-            ProgramLoader programLoader = new ProgramLoader();
-            programLoader.CallFunction(assembly, "sample_software.Initizializer", "Init");
-            
+            programLoader.CallFunction(assembly, "sample_software.Intializer", "Init");
         }
     }
 }
