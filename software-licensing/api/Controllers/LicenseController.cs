@@ -18,7 +18,7 @@ namespace api.Controllers
         {
             {
                 "AAAA-BBBB-CCCC-DDDD",
-                "sample_software.dll"
+                "programs/netcoreapp3.0/sample_software.dll"
             }
         };
 

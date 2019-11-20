@@ -6,12 +6,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\sample_software\sample_software.csproj" />
     <ProjectReference Include="..\utils\utils.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="sample_software.dll">
+    <None Update="programs\netcoreapp3.0\sample_software.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="programs\netcoreapp3.0\utils.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

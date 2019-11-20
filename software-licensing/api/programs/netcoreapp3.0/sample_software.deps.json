@@ -1,0 +1,56 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v3.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v3.0": {
+      "sample_software/1.0.0": {
+        "dependencies": {
+          "utils": "1.0.0"
+        },
+        "runtime": {
+          "sample_software.dll": {}
+        }
+      },
+      "System.Security.Cryptography.Cng/4.6.0": {},
+      "System.Text.Json/4.6.0": {},
+      "utils/1.0.0": {
+        "dependencies": {
+          "System.Security.Cryptography.Cng": "4.6.0",
+          "System.Text.Json": "4.6.0"
+        },
+        "runtime": {
+          "utils.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "sample_software/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Security.Cryptography.Cng/4.6.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-aa7yPkf0Xnto7ABWc6jj/aC5wopVYDqHLxZKuUban63gNJeiA2Zml+H6CFvaXerCHoo6xWn2CK9dfnzGyZ/XRQ==",
+      "path": "system.security.cryptography.cng/4.6.0",
+      "hashPath": "system.security.cryptography.cng.4.6.0.nupkg.sha512"
+    },
+    "System.Text.Json/4.6.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-4F8Xe+JIkVoDJ8hDAZ7HqLkjctN/6WItJIzQaifBwClC7wmoLSda/Sv2i6i1kycqDb3hWF4JCVbpAweyOKHEUA==",
+      "path": "system.text.json/4.6.0",
+      "hashPath": "system.text.json.4.6.0.nupkg.sha512"
+    },
+    "utils/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

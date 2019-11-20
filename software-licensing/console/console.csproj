@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\sample_software\sample_software.csproj" />
     <ProjectReference Include="..\utils\utils.csproj" />
   </ItemGroup>
 
