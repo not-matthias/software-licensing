@@ -9,18 +9,18 @@ Our target is to implement a software, which can send programs from the server t
 
 - Requests the program via a license_key
   - Get public key of the server
-    ```json
+    ```
     GET {host}/license/public_key
     ```
   - Receive public key
-    ```json
+    ```
     {
         "data": { /*public_key_data*/ },
         "checksum": "813b91b01edabe5cc00cdd2f78ef9c22"
     }
     ```
   - Send request to the server  
-    ```json
+    ```
     GET {host}/license/validate
     {
         "data": {
@@ -32,7 +32,7 @@ Our target is to implement a software, which can send programs from the server t
     ```
     Note: The data is encrypted with the public key of the server.
   - Receive response with the program
-    ```json
+    ```
     {
         "data": [4D, 5A, ...],
         "checksum": "813b91b01edabe5cc00cdd2f78ef9c22"
