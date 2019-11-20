@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
 
 namespace utils
 {
@@ -30,9 +29,9 @@ namespace utils
         /// <typeparam name="V">The type of the decrypted data</typeparam>
         /// <param name="key">The asymmetric key</param>
         /// <returns>The decrypted data of the packet</returns>
-        public async Task<V> DecryptAsync<V>(RSAParameters key)
+        public V Decrypt<V>(RSAParameters key)
         {
-            return FromByteArray<V>(_cryptoManager.Decrypt(key, Data));
+            return _cryptoManager.Decrypt(key, Data).FromByteArray<V>();
         }
     }
 }

@@ -16,7 +16,7 @@ namespace console
         public static CryptoManager cryptoManager = new CryptoManager();
         public static ProgramLoader programLoader = new ProgramLoader();
 
-        static async Task Main(string[] args)
+        static async Task Main()
         {
             var publicKey = await GetPublicKey();
             var program = await GetProgram(publicKey, "AAAA-BBBB-CCCC-DDDD");
@@ -58,7 +58,7 @@ namespace console
                 LicenseKey = licenseKey,
                 PublicKey = new RSAParametersSerializable(keys.publicKey)
             });
-            var encryptedPacket = await packet.EncryptAsync(publicKey.RSAParameters);
+            var encryptedPacket = packet.Encrypt(publicKey.RSAParameters);
 
             //
             // Request the program from the server
@@ -70,7 +70,7 @@ namespace console
             // Deserialize and decrypt the packet
             //
             var encrypted = Deserialize<EncryptedPacket<CryptoData>>(await response.Content.ReadAsStringAsync());
-            var decypted = await encrypted.DecryptAsync<byte[]>(keys.privateKey);
+            var decypted = encrypted.Decrypt<byte[]>(keys.privateKey);
 
             return decypted;
         }

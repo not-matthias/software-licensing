@@ -1,9 +1,6 @@
 ﻿using crypto;
 using System;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
 
 namespace utils
 {
@@ -38,14 +35,14 @@ namespace utils
         /// </summary>
         /// <param name="key">The asymmetric key</param>
         /// <returns>The encrypted packet</returns>
-        public async Task<EncryptedPacket<CryptoData>> EncryptAsync(RSAParameters key)
+        public EncryptedPacket<CryptoData> Encrypt(RSAParameters key)
         {
             if (Data.GetType() == typeof(CryptoData))
             {
                 throw new InvalidOperationException("Data is already encrypted");
             }
 
-            var encryptedData = _cryptoManager.Encrypt(key, ToByteArray(Data));
+            var encryptedData = _cryptoManager.Encrypt(key, Data.ToByteArray());
             return new EncryptedPacket<CryptoData>(encryptedData);
         }
 
@@ -55,7 +52,7 @@ namespace utils
         /// <returns>The checksum as a string</returns>
         public string CalculateChecksum()
         {
-            return _cryptoManager.GenerateHash(ToByteArray(Data));
+            return _cryptoManager.GenerateHash(Data.ToByteArray());
         }
 
         /// <summary>
@@ -65,28 +62,6 @@ namespace utils
         public bool IsValid()
         {
             return CalculateChecksum() == Checksum;
-        }
-
-        public static byte[] ToByteArray<V>(V obj)
-        {
-            if (obj == null)
-                return null;
-
-            BinaryFormatter bf = new BinaryFormatter();
-            using MemoryStream ms = new MemoryStream();
-            bf.Serialize(ms, obj);
-            return ms.ToArray();
-        }
-
-        public static V FromByteArray<V>(byte[] data)
-        {
-            if (data == null)
-                return default;
-
-            BinaryFormatter bf = new BinaryFormatter();
-            using MemoryStream ms = new MemoryStream(data);
-            object obj = bf.Deserialize(ms);
-            return (V)obj;
         }
     }
 }

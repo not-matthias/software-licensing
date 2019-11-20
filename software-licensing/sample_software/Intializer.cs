@@ -1,5 +1,6 @@
 ﻿using crypto;
 using System;
+using utils;
 
 namespace sample_software
 {
@@ -10,7 +11,11 @@ namespace sample_software
         public static void Init()
         {
             var userInput = Console.ReadLine();
-            Console.WriteLine($"Hello: {userInput}");
+
+            var byteData = userInput.ToByteArray();
+            var stringData = byteData.FromByteArray<string>();
+
+            Console.WriteLine($"Hello: {stringData}");
             Console.WriteLine("Hello World!");
         }
     }

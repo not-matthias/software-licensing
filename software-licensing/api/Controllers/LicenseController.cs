@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
 using utils;
 
 namespace api.Controllers
@@ -53,7 +52,7 @@ namespace api.Controllers
 
         [HttpPost]
         [Route("validate")]
-        public async Task<IActionResult> ValidateLicenseAsync([FromBody] EncryptedPacket<CryptoData> requestPacket)
+        public IActionResult ValidateLicense([FromBody] EncryptedPacket<CryptoData> requestPacket)
         {
             //
             // Compare the checksum
@@ -66,7 +65,7 @@ namespace api.Controllers
             //
             // Decrypt the packet
             //
-            var data = await requestPacket.DecryptAsync<ProgramRequestData>(_keys.privateKey.RSAParameters);
+            var data = requestPacket.Decrypt<ProgramRequestData>(_keys.privateKey.RSAParameters);
 
             //
             // Validate the license
@@ -92,7 +91,7 @@ namespace api.Controllers
             // Create the response packet
             //
             var packet = new Packet<byte[]>(ms.ToArray());
-            return Ok(await packet.EncryptAsync(data.PublicKey.RSAParameters));
+            return Ok(packet.Encrypt(data.PublicKey.RSAParameters));
         }
     }
 }
