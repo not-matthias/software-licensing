@@ -13,10 +13,10 @@ namespace sample_software
             var userInput = Console.ReadLine();
 
             var byteData = userInput.ToByteArray();
-            var stringData = byteData.FromByteArray<string>();
 
-            Console.WriteLine($"Hello: {stringData}");
-            Console.WriteLine("Hello World!");
+            var (publicKey, privateKey) = cryptoManager.GenerateKeyPair();
+            var encrypt = cryptoManager.Encrypt(publicKey, byteData);
+            Console.WriteLine(encrypt.EncryptedData.FromByteArray());
         }
     }
 }

@@ -1,9 +1,10 @@
 ﻿using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 
 namespace utils
 {
-    public static class ByteConversion
+    public static class ByteConverter
     {
         public static byte[] ToByteArray<V>(this V obj)
         {
@@ -25,6 +26,16 @@ namespace utils
             using MemoryStream ms = new MemoryStream(data);
             object obj = bf.Deserialize(ms);
             return (V)obj;
+        }
+
+        public static byte[] ToByteArray(this string data)
+        {
+            return Encoding.Default.GetBytes(data);
+        }
+
+        public static string FromByteArray(this byte[] data)
+        {
+            return Encoding.UTF8.GetString(data, 0, data.Length);
         }
     }
 }
